@@ -44,7 +44,7 @@ if(isset($_POST['txtAccion'])){
     $result=$query->fetch(PDO::FETCH_ASSOC);
     header("Location: ./../almacenista/ordenes.php");
 }
-qw
+
 
 ?>
 
