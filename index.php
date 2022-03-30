@@ -1,10 +1,46 @@
 <?php
-If($_POST){
-    header('Location:inicio.php');
+session_start();
+include('con_db.php');
+
+
+if(isset($_POST['login'] )){
+    $usuario=$_POST['usuario'];
+    $password=$_POST['password'];
+    $query = $connection->prepare("SELECT * FROM usuarios WHERE usuario=:usuario");
+    $query->bindParam(":usuario", $usuario, PDO::PARAM_STR);
+    $query->execute();
+    $result=$query->fetch(PDO::FETCH_ASSOC);
+    
+    
+    if ($password== $result['password']){
+        $_SESSION['user_id'] = $result['id'];
+        $_SESSION['user_name'] = $result['usuario'];
+        $query = $connection->prepare("UPDATE usuarios SET logged =1 WHERE usuario=:usuario");
+        $query->bindParam("usuario", $usuario, PDO::PARAM_STR);
+        $query->execute();
+        if($result['idtipousuario']==1){
+            header('Location: administrador/inicio.php');
+            die();
+        }
+        if($result['idtipousuario']==2){
+            header('Location: tecnico/inicio.php');
+            die();
+        }
+        if($result['idtipousuario']==3){
+            header('Location: almacenista/inicio.php');
+            die();
+        }
+    
+    }else{
+        echo '<div class="alert alert-danger" role="alert">
+            Usuario y/o contraseña no coinciden
+            </div>';
+        
+    }
 }
+   
+
 ?>
-
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -32,22 +68,23 @@ If($_POST){
                         Iniciar Sesión
                     </div>
                     <div class="card-body">
+                        
 
-                        <form method="POST">
-                        <div class = "form-group">
-                        <label for="exampleInputEmail1">Usuario</label>
-                        <input type="text" class="form-control" name="usuario" aria-describedby="emailHelp" [placeholder="Usuario"]>
-                        
-                        </div>
-                        <div class="form-group">
-                        <label for="exampleInputPassword1">Contraseña</label>
-                        <input type="password" class="form-control" name="contraseña" [placeholder="Contraseña"]>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary">Iniciar</button>
+                        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
+                            <div class = "form-group">
+                            <label for="usuario">Usuario</label>
+                            <input type="text" class="form-control" name="usuario" aria-describedby="emailHelp" [placeholder="Usuario"] required/>
+                            
+                            </div>
+                            <div class="form-group">
+                            <label for="password">Contraseña</label>
+                            <input type="password" class="form-control" name="password" [placeholder="Contraseña"] required/>
+                            </div>
+                            
+                            <button class="btn btn-primary mt-2" type="submit" name="login" value="login">Iniciar sesión</button>
+                            
                         </form>
-                        
-                        
+                                                
                     </div>
                     
                     </div>
